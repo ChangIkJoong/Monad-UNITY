@@ -18,4 +18,3 @@ public interface IGridOccupancy
     bool TryRegister(GridOccupant occupant, Vector3Int originCell, Vector2Int size);
     void Unregister(GridOccupant occupant);
 }
-
