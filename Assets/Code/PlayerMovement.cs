@@ -9,10 +9,6 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private ResourceManager resourceManager;
     [Header("Resources")]
-    [SerializeField] private int woodAmount = 0;
-    [SerializeField] private int stoneAmount = 0;
-    [SerializeField] private int ironAmount = 0;
-    [SerializeField] private int goldAmount = 0;
     [SerializeField] private float collectRange = 1.5f;
     [SerializeField] private LayerMask collectLayer;
     [SerializeField] private float collectDelay = 0.5f;
@@ -283,7 +279,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-         Vector2 animDir = GetAnimatorDirection();
+        Vector2 animDir = GetAnimatorDirection();
         float speed = moveDir.magnitude;
 
         TrySetFloat(moveXHash, animDir.x, animatorDampTime);
@@ -437,22 +433,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void CollectWood()
     {
-        woodAmount += 5;
-        if (resourceManager != null) resourceManager.SetWoodAmount(woodAmount);
+        if (resourceManager != null) resourceManager.SetWoodAmount(5);
     }
     private void CollectStone()
     {
-        stoneAmount += 1;
-        if (resourceManager != null) resourceManager.SetStoneAmount(stoneAmount);
+        if (resourceManager != null) resourceManager.SetStoneAmount(1);
     }
     private void CollectIron()
     {
-        ironAmount += 1;
-        if (resourceManager != null) resourceManager.SetIronAmount(ironAmount);
+        if (resourceManager != null) resourceManager.SetIronAmount(1);
     }
     private void CollectGold()
     {
-        goldAmount += 1;
-        if (resourceManager != null) resourceManager.SetGoldAmount(goldAmount);
+        if (resourceManager != null) resourceManager.SetGoldAmount(1);
     }
 }

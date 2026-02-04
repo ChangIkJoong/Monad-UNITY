@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Resource
+  - CraftingPanel
   layers:
   - Default
   - TransparentFX
