@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Resource
   - CraftingPanel
+  - Enemy
   layers:
   - Default
   - TransparentFX

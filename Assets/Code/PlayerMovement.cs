@@ -18,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
     private float nextGatherTargetCheckTime;
     private bool hasGatherTargetCached;
 
+    [Header("Placement")]
+    [SerializeField, Min(0f)] private float placementRange = 5f;
+
     [Header("Movement")]
     [SerializeField] private ParticleSystem dustParticles;
     [SerializeField] private float moveSpeed = 3f;
@@ -59,6 +62,8 @@ public class PlayerMovement : MonoBehaviour
     private int lastMoveXHash;
     private int lastMoveYHash;
     private int isGatheringHash;
+
+    public float PlacementRange => placementRange;
 
     void Reset()
     {
