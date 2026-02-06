@@ -196,6 +196,7 @@ public class PlayerMovement : MonoBehaviour
         // Emit dust when starting movement or changing direction while moving.
         if ((dir - lastDustEmitDir).sqrMagnitude > dustDirectionEpsilon)
         {
+            SoundManager.Instance.PlaySfx2D("walk");
             EmitDustOpposite(dir);
             lastDustEmitDir = dir;
         }
@@ -438,18 +439,22 @@ public class PlayerMovement : MonoBehaviour
 
     private void CollectWood()
     {
+        SoundManager.Instance.PlaySfx2D("wood");
         if (resourceManager != null) resourceManager.SetWoodAmount(5);
     }
     private void CollectStone()
     {
+        SoundManager.Instance.PlaySfx2D("stone");
         if (resourceManager != null) resourceManager.SetStoneAmount(1);
     }
     private void CollectIron()
     {
+        SoundManager.Instance.PlaySfx2D("stone");
         if (resourceManager != null) resourceManager.SetIronAmount(1);
     }
     private void CollectGold()
     {
+        SoundManager.Instance.PlaySfx2D("stone");
         if (resourceManager != null) resourceManager.SetGoldAmount(1);
     }
 }
