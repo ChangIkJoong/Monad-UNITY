@@ -8,11 +8,8 @@ public class PlacementManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private Grid grid;
     [SerializeField] private Tilemap groundTilemap;
-    [Tooltip("Optional explicit reference. If not set, one will be found at runtime.")]
-    [SerializeField] private MonoBehaviour gridManagerBehaviour;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private ResourceManager resourceManager;
-    [SerializeField] private PlayerMovement playerMovement;
 
     [Header("Selection")]
     [SerializeField] private TowerData selectedTower;
@@ -30,17 +27,16 @@ public class PlacementManager : MonoBehaviour
     [Tooltip("Parent for placed tower instances (optional).")]
     [SerializeField] private Transform placedTowersParent;
 
-    private IGridOccupancy gridOccupancy;
+    private readonly HashSet<Vector3Int> occupiedCells = new HashSet<Vector3Int>();
 
     private void Awake()
     {
-        ResolveGridOccupancy();
         if (grid == null) grid = FindFirstObjectByType<Grid>();
         if (mainCamera == null) mainCamera = Camera.main;
-        if (playerMovement == null) playerMovement = FindFirstObjectByType<PlayerMovement>();
 
         if (groundTilemap == null)
         {
+            // Prefer a tilemap named 'Ground' if it exists.
             var allTilemaps = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
             foreach (var tm in allTilemaps)
             {
@@ -51,36 +47,10 @@ public class PlacementManager : MonoBehaviour
                 }
             }
 
+            // Fallback to any tilemap (better than null, but should be assigned in inspector).
             if (groundTilemap == null && allTilemaps.Length > 0)
             {
                 groundTilemap = allTilemaps[0];
-            }
-        }
-    }
-
-    private void ResolveGridOccupancy()
-    {
-        if (gridOccupancy != null)
-        {
-            return;
-        }
-
-        if (gridManagerBehaviour != null)
-        {
-            gridOccupancy = gridManagerBehaviour as IGridOccupancy;
-            if (gridOccupancy != null)
-            {
-                return;
-            }
-        }
-
-        var behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-        foreach (var b in behaviours)
-        {
-            if (b is IGridOccupancy occ)
-            {
-                gridOccupancy = occ;
-                return;
             }
         }
     }
@@ -100,6 +70,10 @@ public class PlacementManager : MonoBehaviour
             return;
         }
 
+        EnsurePreviewExists();
+        UpdatePreviewAtMouse();
+
+        // Cancel selection + preview.
         if (Input.GetMouseButtonDown(1))
         {
             ClearSelection();
@@ -110,25 +84,15 @@ public class PlacementManager : MonoBehaviour
         {
             if (TryPlaceSelectedAtMouse())
             {
+                // Auto-cancel after a successful placement.
                 ClearSelection();
             }
         }
     }
 
-    private void LateUpdate()
-    {
-        if (selectedTower == null)
-        {
-            return;
-        }
-
-        EnsurePreviewExists();
-        UpdatePreviewAtMouse();
-    }
-
     private bool TryPlaceSelectedAtMouse()
     {
-        if (mainCamera == null || groundTilemap == null)
+        if (mainCamera == null || grid == null || groundTilemap == null)
         {
             return false;
         }
@@ -145,14 +109,7 @@ public class PlacementManager : MonoBehaviour
 
         Vector3 world = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         world.z = 0f;
-        Vector3Int anchorCell = groundTilemap.WorldToCell(world);
-        Vector3Int originCell = GetOriginCellFromAnchor(anchorCell, selectedTower.Footprint);
-        Vector3 placementWorldPos = GetFootprintCenterWorld(originCell, selectedTower.Footprint);
-
-        if (!IsWithinPlacementRange(placementWorldPos))
-        {
-            return false;
-        }
+        Vector3Int originCell = grid.WorldToCell(world); // clicked cell = bottom-left
 
         if (!CanPlaceAt(originCell, selectedTower.Footprint))
         {
@@ -164,6 +121,7 @@ public class PlacementManager : MonoBehaviour
             return false;
         }
 
+        Vector3 placementWorldPos = GetFootprintCenterWorld(originCell, selectedTower.Footprint);
         GameObject placed = Instantiate(
             selectedTower.TowerPrefab,
             placementWorldPos,
@@ -171,6 +129,7 @@ public class PlacementManager : MonoBehaviour
             placedTowersParent
         );
 
+        // Reserve cells and store placement metadata.
         var placedTower = placed.GetComponent<PlacedTower>();
         if (placedTower == null)
         {
@@ -178,30 +137,12 @@ public class PlacementManager : MonoBehaviour
         }
         placedTower.Initialize(selectedTower, originCell, selectedTower.Footprint);
 
-        ResolveGridOccupancy();
-        if (gridOccupancy != null)
+        foreach (var cell in EnumerateFootprintCells(originCell, selectedTower.Footprint))
         {
-            var occupant = placed.GetComponent<GridOccupant>();
-            if (occupant == null)
-            {
-                occupant = placed.AddComponent<GridOccupant>();
-            }
-            occupant.Configure(GridObjectKind.Tower, selectedTower.Footprint);
-
-            if (occupant.IsRegistered)
-            {
-                gridOccupancy.Unregister(occupant);
-            }
-            gridOccupancy.TryRegister(occupant, originCell, selectedTower.Footprint);
+            occupiedCells.Add(cell);
         }
 
         return true;
-    }
-    private static Vector3Int GetOriginCellFromAnchor(Vector3Int anchorCell, Vector2Int footprint)
-    {
-        int dx = Mathf.Max(0, (footprint.x - 1) / 2);
-        int dy = Mathf.Max(0, (footprint.y - 1) / 2);
-        return anchorCell - new Vector3Int(dx, dy, 0);
     }
 
     private bool CanPlaceAt(Vector3Int originCell, Vector2Int footprint)
@@ -211,12 +152,20 @@ public class PlacementManager : MonoBehaviour
             return false;
         }
 
-        ResolveGridOccupancy();
-        if (gridOccupancy == null)
+        foreach (var cell in EnumerateFootprintCells(originCell, footprint))
         {
-            return false;
+            if (!groundTilemap.HasTile(cell))
+            {
+                return false;
+            }
+
+            if (occupiedCells.Contains(cell))
+            {
+                return false;
+            }
         }
-        return gridOccupancy.CanOccupyFootprint(originCell, footprint);
+
+        return true;
     }
 
     private IEnumerable<Vector3Int> EnumerateFootprintCells(Vector3Int originCell, Vector2Int footprint)
@@ -237,13 +186,13 @@ public class PlacementManager : MonoBehaviour
 
         foreach (var cell in EnumerateFootprintCells(originCell, footprint))
         {
-            sum += groundTilemap.GetCellCenterWorld(cell);
+            sum += grid.GetCellCenterWorld(cell);
             count++;
         }
 
         if (count == 0)
         {
-            return groundTilemap.GetCellCenterWorld(originCell);
+            return grid.GetCellCenterWorld(originCell);
         }
 
         Vector3 avg = sum / count;
@@ -267,6 +216,7 @@ public class PlacementManager : MonoBehaviour
         previewInstance = Instantiate(selectedTower.TowerPrefab, Vector3.zero, Quaternion.identity, transform);
         previewInstance.name = $"{selectedTower.TowerName}_Preview";
 
+        // Prevent preview from interacting with gameplay systems.
         DisablePreviewInteractions(previewInstance);
         CachePreviewRenderers(previewInstance);
     }
@@ -298,15 +248,7 @@ public class PlacementManager : MonoBehaviour
 
     private void DisablePreviewInteractions(GameObject root)
     {
-        foreach (var animator in root.GetComponentsInChildren<Animator>(true))
-        {
-            animator.enabled = false;
-        }
-        foreach (var animation in root.GetComponentsInChildren<Animation>(true))
-        {
-            animation.enabled = false;
-        }
-
+        // Disable colliders.
         foreach (var col in root.GetComponentsInChildren<Collider>(true))
         {
             col.enabled = false;
@@ -316,6 +258,7 @@ public class PlacementManager : MonoBehaviour
             col2D.enabled = false;
         }
 
+        // Disable physics bodies if present.
         foreach (var rb in root.GetComponentsInChildren<Rigidbody>(true))
         {
             rb.isKinematic = true;
@@ -326,11 +269,13 @@ public class PlacementManager : MonoBehaviour
             rb2D.simulated = false;
         }
 
+        // Disable scripts on the preview so it can't attack/trigger logic while previewing.
         foreach (var mb in root.GetComponentsInChildren<MonoBehaviour>(true))
         {
             mb.enabled = false;
         }
 
+        // Keep preview from being raycast-targeted in most setups.
         SetLayerRecursively(root, 2); // Ignore Raycast
     }
 
@@ -346,7 +291,7 @@ public class PlacementManager : MonoBehaviour
 
     private void UpdatePreviewAtMouse()
     {
-        if (previewInstance == null || mainCamera == null || groundTilemap == null || selectedTower == null)
+        if (previewInstance == null || mainCamera == null || grid == null || groundTilemap == null || selectedTower == null)
         {
             return;
         }
@@ -354,30 +299,14 @@ public class PlacementManager : MonoBehaviour
         Vector3 world = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         world.z = 0f;
 
-        Vector3Int anchorCell = groundTilemap.WorldToCell(world);
-        Vector3Int originCell = GetOriginCellFromAnchor(anchorCell, selectedTower.Footprint);
-        Vector3 placementWorldPos = GetFootprintCenterWorld(originCell, selectedTower.Footprint);
-        previewInstance.transform.position = placementWorldPos;
+        Vector3Int originCell = grid.WorldToCell(world);
+        previewInstance.transform.position = GetFootprintCenterWorld(originCell, selectedTower.Footprint);
 
         bool pointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         bool canAfford = resourceManager == null || resourceManager.CanAfford(selectedTower.Cost);
-        bool withinRange = IsWithinPlacementRange(placementWorldPos);
-        bool canPlace = !pointerOverUi && canAfford && withinRange && CanPlaceAt(originCell, selectedTower.Footprint);
+        bool canPlace = !pointerOverUi && canAfford && CanPlaceAt(originCell, selectedTower.Footprint);
 
         ApplyPreviewTint(canPlace ? canPlacePreviewColor : cannotPlacePreviewColor);
-    }
-
-    private bool IsWithinPlacementRange(Vector3 placementWorldPos)
-    {
-        if (playerMovement == null)
-        {
-            return true;
-        }
-
-        float range = Mathf.Max(0f, playerMovement.PlacementRange);
-        Vector2 playerPos = playerMovement.transform.position;
-        Vector2 placePos = placementWorldPos;
-        return (placePos - playerPos).sqrMagnitude <= range * range;
     }
 
     private void ApplyPreviewTint(Color tint)
