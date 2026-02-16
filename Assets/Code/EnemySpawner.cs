@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Spawns enemies randomly around the map and directs them towards a target position.
@@ -9,9 +11,7 @@ public class EnemySpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField, Min(0.5f)] private float spawnInterval = 10f;
-    [SerializeField, Min(1)] private int maxEnemies = 20;
-    
+
     [Header("Target Position")]
     [SerializeField] private Vector2 targetPosition = new Vector2(-5.285247f, 0.3300301f);
     
@@ -21,12 +21,42 @@ public class EnemySpawner : MonoBehaviour
     
     [Header("Enemy Stats")]
     [SerializeField, Min(0.1f)] private float enemySpeed = 1f;
-    
-    private int currentEnemyCount = 0;
+
+    private int plannedToSpawn;
+    private int enemiesSpawned;
+    private int alive;
+    private bool finishedSpawning;
     private Coroutine spawnCoroutine;
 
-    private void Start()
+    private float enemySpawnInterval;
+    public event Action<EnemySpawner> StatusChanged;
+
+    public int AliveCount => alive;
+    public bool FinishedSpawning => finishedSpawning;
+
+
+    // WaveManager calls EnemySpawner to spwan Enemies:
+    public void BeginWave(int waveLevel, int countToSpawn, float interval)
     {
+        Debug.Log($"[EnemySpawner] BeginWave: spawn {countToSpawn} interval {interval} at {transform.position}");
+
+
+        // stop old wave if still running (safety)
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        // setting private variables according to wave instructions
+        plannedToSpawn = countToSpawn;
+        enemiesSpawned = 0;
+        alive = 0; // maybe changing this line/ concept, if we want new waves while enemies of an earlier wave are still alive
+        finishedSpawning = false;
+
+        enemySpawnInterval = interval;
+
+
         // Load the enemy prefab from Resources if not assigned
         if (enemyPrefab == null)
         {
@@ -37,8 +67,15 @@ public class EnemySpawner : MonoBehaviour
                 return;
             }
         }
-        
+
+        // starting Coroutine with the aboved set variables
         spawnCoroutine = StartCoroutine(SpawnEnemiesRoutine());
+    }
+
+
+    private void Start()
+    {
+
     }
 
     private void OnDestroy()
@@ -49,16 +86,16 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnEnemiesRoutine()
     {
-        while (true)
+        while (enemiesSpawned < plannedToSpawn)
         {
-            yield return new WaitForSeconds(spawnInterval);
-            //Debug.Log("Current Enemy Count: " + currentEnemyCount);
-            
-            if (currentEnemyCount < maxEnemies)
-            {
-                SpawnEnemy();
-            }
+            SpawnEnemy();
+            //Debug.Log("Current Enemy Count: " + enemiesSpawned);
+            yield return new WaitForSeconds(enemySpawnInterval);
+
         }
+        finishedSpawning = true;
+        spawnCoroutine = null;
+        StatusChanged?.Invoke(this);
     }
 
     private void SpawnEnemy()
@@ -73,13 +110,17 @@ public class EnemySpawner : MonoBehaviour
         }
         
         enemy.Initialize(targetPosition, enemySpeed, this);
-        currentEnemyCount++;
+
+        enemiesSpawned++;
+        alive++;
+        StatusChanged?.Invoke(this);
     }
 
     private Vector2 GetRandomSpawnPosition()
     {
         // Get the prefab's position as the center for spawning
-        Vector2 prefabCenter = enemyPrefab != null ? (Vector2)enemyPrefab.transform.position : Vector2.zero;
+  /*      Vector2 prefabCenter = enemyPrefab != null ? (Vector2)enemyPrefab.transform.position : Vector2.zero;*/
+        Vector2 prefabCenter = enemyPrefab != null ? (Vector2)transform.position : Vector2.zero;
         
         // Spawn enemies in a ring around the prefab location (between minSpawnDistance and spawnRadius)
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -91,9 +132,11 @@ public class EnemySpawner : MonoBehaviour
 
     public void OnEnemyDestroyed()
     {
-        //Debug.Log("Enemy destroyed on spawner " + gameObject.name + ". Count before: " + currentEnemyCount);
-        currentEnemyCount = Mathf.Max(0, currentEnemyCount - 1);
-        //Debug.Log("Count after: " + currentEnemyCount);
+        //Debug.Log("Enemy destroyed on spawner " + gameObject.name + ". Count before: " + alive);
+        alive = Mathf.Max(0, alive - 1);
+        //Debug.Log("Count after: " + alive);
+
+        StatusChanged?.Invoke(this);
     }
 
     /// <summary>
@@ -113,7 +156,8 @@ public class EnemySpawner : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         // Get the prefab's position as the center for visualization
-        Vector3 prefabCenter = enemyPrefab != null ? enemyPrefab.transform.position : Vector3.zero;
+       /* Vector3 prefabCenter = enemyPrefab != null ? enemyPrefab.transform.position : Vector3.zero;*/
+        Vector3 prefabCenter = enemyPrefab != null ? transform.position : Vector3.zero;
         
         // Target position
         Vector3 targetCenter = new Vector3(targetPosition.x, targetPosition.y, 0f);
