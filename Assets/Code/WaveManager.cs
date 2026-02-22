@@ -26,6 +26,7 @@ public class WaveManager : MonoBehaviour
 
 
     private int level;
+    private int nextWaveNr;
     private int activeSpawnersCount;
     private float breakTimer;
     private float countdownTimer;
@@ -54,6 +55,7 @@ public class WaveManager : MonoBehaviour
         countdownTimer = initialCountdown;
         breakTimer = breakDuration;
         level = 0;
+        nextWaveNr = 1;
         activeSpawnersCount = 1;
 
         for (int i = 0; i < enemySpawners.Length; i++)
@@ -73,7 +75,7 @@ public class WaveManager : MonoBehaviour
             if (countdownText != null)
             {
                 int secs = Mathf.CeilToInt(Mathf.Max(0f, countdownTimer));
-                countdownText.text = $"First wave in {secs}s";
+                countdownText.text = $"{nextWaveNr}. wave in {secs}s";
             }
 
             if (countdownTimer <= 0f)
@@ -124,7 +126,6 @@ public class WaveManager : MonoBehaviour
 
     private void StartNextWave()
     {
-
         // setting new level and amount of active spawner related to the level
         level++;
         activeSpawnersCount = GetActiveSpawnersCount(level);
@@ -186,6 +187,9 @@ public class WaveManager : MonoBehaviour
         {
             currentState = WaveState.Break;
             breakTimer = breakDuration;
+
+            // prepare text for next Countdown
+            nextWaveNr++;
 
             Debug.Log($"[WaveManager] Wave {level} completed. Break for {breakDuration}s.");
 
