@@ -28,6 +28,7 @@ public class PlacementManager : MonoBehaviour
     [SerializeField] private Transform placedTowersParent;
 
     private readonly HashSet<Vector3Int> occupiedCells = new HashSet<Vector3Int>();
+    public bool IsInPlacementMode => selectedTower != null;
 
     /// <summary>Raised whenever the occupied-cell set changes (e.g. tower placed).</summary>
     public event System.Action OnGridChanged;
