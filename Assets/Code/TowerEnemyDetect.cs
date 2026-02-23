@@ -151,7 +151,7 @@ public class TowerEnemyDetect : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Collider2D hit = overlapBuffer[i];
-            if (hit == null || !hit.CompareTag(enemyTag))
+            if (hit == null || !hit.transform.root.CompareTag(enemyTag))
             {
                 continue;
             }
