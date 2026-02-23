@@ -106,7 +106,8 @@ public class EnemySpawner : MonoBehaviour
     {
         Vector2 spawnPosition = GetRandomSpawnPosition();
         GameObject enemyObj = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-        
+        enemyObj.tag = "Enemy";
+
         Enemy enemy = enemyObj.GetComponent<Enemy>();
         if (enemy == null)
         {
