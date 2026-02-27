@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using System.Collections;
+using System;
 
 public class Core : MonoBehaviour
 {
@@ -19,12 +20,19 @@ public class Core : MonoBehaviour
     [SerializeField] private float explosionSize = 90f;
     [SerializeField] private float explosionDuration = 5f;
 
+    public event Action<float> HealthChanged; // currentHealth
+
     private Vector3 orbBaseOffset;
 
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
     public bool IsDestroyed => currentHealth <= 0f;
 
+
+    void Awake()
+    {
+        currentHealth = maxHealth;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -35,9 +43,6 @@ public class Core : MonoBehaviour
         {
             orbBaseOffset = orb.transform.position - transform.position;
         }
-
-        // Initialize health
-        currentHealth = maxHealth;
     }
 
     private void Update()
@@ -62,6 +67,8 @@ public class Core : MonoBehaviour
         currentHealth = Mathf.Max(currentHealth, 0f);
 
         UnityEngine.Debug.Log($"Core took {damage} damage! Health: {currentHealth}/{maxHealth}");
+
+        HealthChanged?.Invoke(currentHealth);
 
         if (IsDestroyed)
         {

@@ -6379,7 +6379,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1515752278}
   m_HandleRect: {fileID: 0}
@@ -8261,6 +8261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1273958794}
   - component: {fileID: 1273958795}
+  - component: {fileID: 1273958796}
   m_Layer: 5
   m_Name: Health
   m_TagString: Untagged
@@ -8328,7 +8329,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1636701461}
   m_HandleRect: {fileID: 0}
@@ -8336,10 +8337,24 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.571
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1273958796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273958793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ceba0881a74ae4e8e2f10eb715abd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  core: {fileID: 0}
+  healthSlider: {fileID: 0}
 --- !u!4 &1274705546 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4634812818332123107, guid: d9de927b2819d5d46823391439542c72, type: 3}
@@ -189750,7 +189765,11 @@ PrefabInstance:
       objectReference: {fileID: 1118578880}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: initialCountdown
-      value: 10
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: spawnIntervalInWave
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758457815959807532, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: m_Name
@@ -189802,7 +189821,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6057595693163865319, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: enemySpeed
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6057595693163865319, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: spawnRadius
