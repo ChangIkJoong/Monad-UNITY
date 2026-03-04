@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3686839301809847092}
   - component: {fileID: 1366542231841099999}
+  - component: {fileID: 7237885158186774894}
   m_Layer: 0
   m_Name: WaveManager
   m_TagString: Untagged
@@ -49,14 +50,25 @@ MonoBehaviour:
   countdownText: {fileID: 0}
   initialCountdown: 30
   breakDuration: 5
-  spawnIntervalInWave: 3
-  enemiesToSpawn: 10
+  baseEnemySpawnInterval: 0.5
+  baseEnemyCount: 10
   enemySpawners:
   - {fileID: 6057595693163865319}
-  spawnPoints:
-  - {fileID: 1794065143234244184}
   levelForSpawner2: 1
   levelForSpawner3: 30
+  difficultyManager: {fileID: 7237885158186774894}
+--- !u!114 &7237885158186774894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758457815959807532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2de2e7c1cb1600e4f93ff9a866d8f197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7481053402910408581
 GameObject:
   m_ObjectHideFlags: 0
