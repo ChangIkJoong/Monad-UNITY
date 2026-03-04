@@ -15,20 +15,23 @@ public class WaveManager : MonoBehaviour
     [Header("WaveSetting")]
     [SerializeField] private float initialCountdown   = 60f;
     [SerializeField] private float breakDuration      = 5f;
-    [SerializeField] private float spawnIntervalInWave = 0.5f;
-    [SerializeField] private int enemiesToSpawn = 10;
+    [SerializeField] private float baseEnemySpawnInterval = 0.5f;
+    [SerializeField] private int baseEnemyCount = 10;
 
     [Header("EnemySpawner")]
     [SerializeField] private EnemySpawner[] enemySpawners;
     [SerializeField] private int levelForSpawner2 = 15;
     [SerializeField] private int levelForSpawner3 = 30;
 
+    [SerializeField]
+    private DifficultyManager difficultyManager;
 
     private int level;
     private int activeSpawnersCount;
     private float breakTimer;
     private float countdownTimer;
     private WaveState currentState;
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,6 +51,20 @@ public class WaveManager : MonoBehaviour
             enabled = false;
             return;
         }
+
+
+        if (difficultyManager == null)
+        {
+            difficultyManager = FindFirstObjectByType<DifficultyManager>();
+
+            if (difficultyManager == null)
+            {
+                Debug.LogError("[WaveManager] No difficulty Manager is assigned in Inspector. Disabling WaveManager.");
+                enabled = false;
+                return;
+            }
+        }
+
 
         level = 0;
         activeSpawnersCount = 1;
@@ -166,13 +183,14 @@ public class WaveManager : MonoBehaviour
         level++;
         activeSpawnersCount = GetActiveSpawnersCount(level);
 
-        Debug.Log($"[WaveManager] Starting {level}. wave with {activeSpawnersCount} active spawner(s). Enemies per spawner: {enemiesToSpawn}, interval: {spawnIntervalInWave}s");
-
+        WaveConfiguration waveConfig = difficultyManager.BuildWaveConfiguration(level, baseEnemyCount, baseEnemySpawnInterval);
+        
+        Debug.Log($"[WaveManager] Starting {level}. wave with {activeSpawnersCount} active spawner(s). Enemies per spawner: {baseEnemyCount}, interval: {baseEnemySpawnInterval}s");
 
         for (int i = 0; i < activeSpawnersCount; i++)
         {
             Debug.Log($"[WaveManager] Spawner {i}: {enemySpawners[i].name} begins {level}. wave");
-            enemySpawners[i].BeginWave(level, enemiesToSpawn, spawnIntervalInWave);
+            enemySpawners[i].BeginWave(waveConfig);
         }
 
         currentState = WaveState.Waiting;
