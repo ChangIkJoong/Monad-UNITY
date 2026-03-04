@@ -61,14 +61,6 @@ public class Enemy : MonoBehaviour
     /// <summary>Health as a 0-1 fraction, safe to use for UI bars.</summary>
     public float HealthFraction => maxHealth > 0f ? currentHealth / maxHealth : 0f;
 
-    // -----------------------------------------------------------------------
-    // Unity lifecycle
-    // -----------------------------------------------------------------------
-    private void Awake()
-    {
-        currentHealth = maxHealth;
-        isAlive = true;
-    }
 
     // -----------------------------------------------------------------------
     // Spawner initialisation (called by EnemySpawner after Instantiate)
@@ -78,9 +70,18 @@ public class Enemy : MonoBehaviour
     /// Called by EnemySpawner right after spawning to wire up the back-reference.
     /// <paramref name="speed"/> overrides the prefab MoveSpeed so spawner inspector value is used.
     /// </summary>
-    public void Initialize(Vector2 target, float speed, EnemySpawner parentSpawner)
+    public void Initialize(Vector2 target, float speed, float enemyHealthMultiplier, float enemyDamageMultiplier, EnemySpawner parentSpawner)
     {
         spawner = parentSpawner;
+
+        maxHealth *= enemyHealthMultiplier;
+        attackDamage *= enemyDamageMultiplier;
+
+        currentHealth = maxHealth;
+        isAlive = true;
+
+        Debug.Log($"Enemy stats: health:{maxHealth}, damage:{attackDamage}");
+
         moveSpeed = Mathf.Max(0f, speed);
         // target is now handled by EnemyMovement (it finds Core by tag automatically)
     }

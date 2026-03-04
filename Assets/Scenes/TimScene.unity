@@ -2020,6 +2020,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f74909fcab02f59479363d4b1c5fb923, type: 3}
+--- !u!1 &426416406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1758457815959807532, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+  m_PrefabInstance: {fileID: 1798957424}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &431247310
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3714,6 +3719,8 @@ MonoBehaviour:
   closeButton: {fileID: 0}
   towerData: {fileID: 11400000, guid: 6a98454fc87636242bca0c153e046b2a, type: 2}
   button: {fileID: 767152643}
+  tooltipPanel: {fileID: 0}
+  tooltipText: {fileID: 0}
 --- !u!114 &767152643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5416,6 +5423,8 @@ MonoBehaviour:
   closeButton: {fileID: 0}
   towerData: {fileID: 11400000, guid: a1bc0d1f0e79e4f95a8ba1c0638d329d, type: 2}
   button: {fileID: 964195228}
+  tooltipPanel: {fileID: 0}
+  tooltipText: {fileID: 0}
 --- !u!114 &964195228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9189,6 +9198,8 @@ MonoBehaviour:
   closeButton: {fileID: 0}
   towerData: {fileID: 11400000, guid: 70dcaf293e5d749e989feb99e529a328, type: 2}
   button: {fileID: 1404044866}
+  tooltipPanel: {fileID: 0}
+  tooltipText: {fileID: 0}
 --- !u!114 &1404044866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9493,6 +9504,18 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3686839301809847092, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
   m_PrefabInstance: {fileID: 1798957424}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1433085456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426416406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2de2e7c1cb1600e4f93ff9a866d8f197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1433876724 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7791373908229295762, guid: 514ec6e53df48c847910a451274636bc, type: 3}
@@ -189760,13 +189783,25 @@ PrefabInstance:
       value: 19.3
       objectReference: {fileID: 0}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: breakDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: countdownText
       value: 
       objectReference: {fileID: 1118578880}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
-      propertyPath: initialCountdown
+      propertyPath: baseEnemyCount
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: initialCountdown
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: difficultyManager
+      value: 
+      objectReference: {fileID: 1433085456}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: spawnIntervalInWave
       value: 3
@@ -189835,7 +189870,10 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 7481053402910408581, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1758457815959807532, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1433085456}
   m_SourcePrefab: {fileID: 100100000, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
 --- !u!4 &1808108043 stripped
 Transform:
