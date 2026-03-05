@@ -2624,7 +2624,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3106253253729279600, guid: b62e120163a944eb586b1b7bdfae8944, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7464386410132835744, guid: b62e120163a944eb586b1b7bdfae8944, type: 3}
       propertyPath: m_Pivot.x
@@ -202868,13 +202868,37 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 981191254}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: waveDuration
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: countdownText
       value: 
       objectReference: {fileID: 171338335}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: baseEnemyCount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: countdownPanel
       value: 
       objectReference: {fileID: 1118578878}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: baseWaveDuration
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: initialCountdown
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: levelForSpawner2
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
+      propertyPath: levelForSpawner3
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1366542231841099999, guid: 1cc107a9bbd21574b86033d9555f0200, type: 3}
       propertyPath: spawnArrowIndicatorUI
       value: 
