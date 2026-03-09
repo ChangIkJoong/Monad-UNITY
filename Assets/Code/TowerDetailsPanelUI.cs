@@ -8,6 +8,8 @@ public class TowerDetailsPanelUI : MonoBehaviour
     [Header("References")]
     [SerializeField] private TowerSelectionController selectionController;
     [SerializeField] private GameObject panelRoot;
+    [SerializeField] private PlacementManager placementManager;
+    [SerializeField] private ResourceManager resourceManager;
 
     [Header("Details Text")]
     [SerializeField] private TMP_Text towerNameText;
@@ -24,6 +26,9 @@ public class TowerDetailsPanelUI : MonoBehaviour
     [SerializeField] private TMP_Text upgradeButton2Label;
     [SerializeField] private TMP_Text upgradeButton3Label;
 
+    [Header("Delete Button")]
+    [SerializeField] private Button deleteButton;
+
     private PlacedTower currentTower;
 
     private void Awake()
@@ -33,7 +38,13 @@ public class TowerDetailsPanelUI : MonoBehaviour
             panelRoot = gameObject;
         }
 
+        if (placementManager == null)
+        {
+            placementManager = FindFirstObjectByType<PlacementManager>();
+        }
+
         BindUpgradeButtons();
+        BindDeleteButton();
         SetPanelVisible(false);
     }
 
@@ -52,6 +63,11 @@ public class TowerDetailsPanelUI : MonoBehaviour
         else
         {
             SetPanelVisible(false);
+        }
+
+        if (resourceManager == null)
+        {
+            resourceManager = FindFirstObjectByType<ResourceManager>();
         }
     }
 
@@ -151,5 +167,44 @@ public class TowerDetailsPanelUI : MonoBehaviour
         }
 
         Debug.Log($"Upgrade {upgradeIndex} clicked for {currentTower.TowerData.TowerName}. Placeholder only.");
+    }
+
+    private void BindDeleteButton()
+    {
+        if (deleteButton != null)
+        {
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(OnDeleteClicked);
+        }
+    }
+
+    private void OnDeleteClicked()
+    {
+        if (currentTower == null)
+        {
+            return;
+        }
+
+        if (resourceManager != null && currentTower != null && currentTower.TowerData != null)
+        {
+            resourceManager.RefundHalf(currentTower.TowerData.Cost);
+        }
+
+        if (placementManager != null)
+        {
+            placementManager.RemoveTower(currentTower);
+        }
+        else
+        {
+            Destroy(currentTower.gameObject);
+        }
+
+        if (selectionController != null)
+        {
+            selectionController.ClearSelection();
+        }
+
+        currentTower = null;
+        SetPanelVisible(false);
     }
 }
